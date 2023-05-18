@@ -3,7 +3,7 @@
 import sys
 import subprocess
 import pkg_resources  # https://jmchilton-galaxy.readthedocs.io/en/latest/lib/pkg_resources.html
-from pkg_resources import DistributionNotFound, VersionConflict
+# from pkg_resources import DistributionNotFound, VersionConflict
 from packaging import version
 import os
 import git_tools
@@ -15,7 +15,7 @@ SETTINGS.read_settings()
 
 
 class PackageChecker:
-    def __init__(self, file='requirements.txt'):
+    def __init__(self, file='./src/requirements.txt'):
         self.file = file
         
         # dependencies can be any iterable with strings, 
@@ -96,12 +96,9 @@ def newest_version(available_versions: list):
 
 def git_update():
     # git updates
-    git_key = SETTINGS.git['key']
     git_target = SETTINGS.git['url']
-    base = "https://{key}@github.com{target}".format(key=git_key, target=git_target)
 
     print('Fetching Updates from GitHub: https://[key]@github.com{}'.format(git_target))
-    # git_fetch(base, tags=True)
     git_tools.fetch()
 
     proj_versions = git_tools.tags()
