@@ -5,8 +5,6 @@ import argparse
 import re
 import os
 
-print('CWD', os.getcwd())
-
 SETTINGS = Settings(os.getcwd())
 SETTINGS.file = os.path.normpath(os.path.join(os.getcwd(), "install_settings.json"))
 SETTINGS.read_settings()
@@ -14,12 +12,28 @@ SETTINGS.read_settings()
 token = SETTINGS.git['key']
 
 
+def isnear(value, reference, dist):
+    if value is None or reference is None:
+        return False
+
+    if abs(reference-value) <= dist:
+        return True
+    else:
+        return False
+
+
 class MyRemoteCallbacks(pygit2.RemoteCallbacks):
     def __init__(self):
         super().__init__(pygit2.UserPass(token, 'x-oauth-basic'))
+        self.progress = 0
+        self.progress_steps = [0, 5, 10, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100]
 
     def transfer_progress(self, stats):
-        print(f'{stats.indexed_objects}/{stats.total_objects}')
+        self.progress = int(100*(stats.indexed_objects/stats.total_objects))
+        for p in self.progress_steps:
+            if isnear(self.progress, p, 0.49):
+                print('Download Progress: {}%'.format(self.progress))
+                self.progress_steps[self.progress_steps.index(self.progress)] = None
 
 
 def clone(url, path='./src', branch=None):
@@ -29,14 +43,14 @@ def clone(url, path='./src', branch=None):
     display_url = url
     if "<key>" in url:
         url = url.replace('<key>', token)
-    print("Cloning {}".format(display_url))
-    print("Cloning {}".format(url))
-    print("\n")
 
+    cb = MyRemoteCallbacks()
     if branch is None:
-        R = pygit2.clone_repository(url, path, callbacks=MyRemoteCallbacks())
+        print("Cloning {}".format(display_url))
+        R = pygit2.clone_repository(url, path, callbacks=cb)
     else:
         branch = str(branch)
+        print("Cloning {} branch from: {}\n".format(branch, display_url))
         R = pygit2.clone_repository(url, path, checkout_branch=branch, callbacks=MyRemoteCallbacks())
     return R
 
@@ -52,9 +66,7 @@ def fetch(repository=None):
     remotes = repo.remotes
     if len(remotes) > 0 and remotes[0] is not None:
         remote = remotes['origin']
-        url = remote.url
         remote.fetch(callbacks=MyRemoteCallbacks(), message='tags')
-        print(remote.name, url)
         return remote
     else:
         return
