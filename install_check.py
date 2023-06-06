@@ -117,7 +117,7 @@ def git_update():
             # git_tools.pull(base, tag=newest_version(newer_versions)) TODO
         else:
             print('OVERWRITES CURRENT INSTALL')
-            ans = input('OK, enter valid version number to install:')
+            ans = input('OK, enter valid version number to install (or None to skip update):')
             if ans in proj_versions:
                 print('\nInstalling {}!'.format(ans))
                 git_tools.install_version(ans)
@@ -135,7 +135,7 @@ def pkgs_update():
     n_missing_errs = len(b['missing'])
 
     if n_version_errs == n_missing_errs == 0:
-        print('Environment Verified')
+        print('Environment Verified GOOD')
     else:
         print('\n', 'Package version errors:')
         all_data = [['Package', 'Installed', 'Required']]
@@ -155,7 +155,7 @@ def pkgs_update():
             print('\nUpdating!')
             c.fix()
         else:
-            print('Cancelling!')
+            print('Cancelling Update! Proceeding with Errors')
         
 
 if __name__ == '__main__':
