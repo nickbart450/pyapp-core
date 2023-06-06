@@ -15,6 +15,8 @@ SETTINGS.read_settings()
 
 token = SETTINGS.git['key']
 
+pygit2.option(pygit2.GIT_OPT_SET_OWNER_VALIDATION, 0)  # Disables ownership verification
+
 
 def isnear(value, reference, dist):
     if value is None or reference is None:
@@ -111,7 +113,15 @@ def fetch(repository=None):
 
 def tags(repository=None, ignore_rc=True):
     if repository is not None:
-        repo = repository
+        if os.path.exists(os.path.abspath(repository)):
+            repo = pygit2.Repository(pygit2.discover_repository(os.path.abspath(repository)))
+            # print(repo.config.__contains__('safe.directory'))
+
+        elif isinstance(repository, pygit2.Repository):
+            repo = repository
+        else:
+            raise RuntimeError('Provided repository is not valid git repo')
+
     else:
         repo = pygit2.Repository(pygit2.discover_repository('./src'))
     if repo is None:
