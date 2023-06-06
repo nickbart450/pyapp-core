@@ -76,14 +76,6 @@ def print_table(table):
         print("| " + " | ".join("{:{}}".format(str(x), col_width[i]) for i, x in enumerate(line)) + " |")
 
 
-# def git_pull(target_url, tag=None, branch='main'):
-#     if tag is None:
-#         r = subprocess.run(["git", "pull", target_url, branch])
-#     else:
-#         r = subprocess.run(["git", "pull", target_url, tag])
-#     r.check_returncode()
-
-
 def newest_version(available_versions: list):
     latest = available_versions[0]
     prev_ver = '0'
