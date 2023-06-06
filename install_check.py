@@ -95,7 +95,7 @@ def git_update():
 
     proj_versions = git_tools.tags()
     current_version = git_tools.current_version()
-    print('\nAvailable versions:', proj_versions, 'Current version:', current_version)
+    print('\nCurrent version:', current_version, '\nAvailable versions:', proj_versions)
     newer_versions = []
     for v in proj_versions:
         if version.parse(v.split('-')[0]) > version.parse(current_version.split('-')[0]):

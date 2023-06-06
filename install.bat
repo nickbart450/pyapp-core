@@ -62,7 +62,6 @@ GOTO install
 
     :: Extracting Embedded Python Distribution
     IF NOT EXIST "%install_directory%\dist" md "%install_directory%\dist"
-    echo :
     echo (4/9) Extracting Python 3.10 Embedded...
     TAR -xf "%install_directory%\dist310.zip" -C "%install_directory%\dist"
 
