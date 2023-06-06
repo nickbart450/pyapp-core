@@ -1,5 +1,6 @@
 @echo off
 set "install_directory=%userprofile%\FordWindTunnelPlotter"
+set "branch=next"
 
 echo Welcome to the installation script for the Ford+ WT plotting application!
 echo This script will automatically download and install the latest version. It may take several minutes.
@@ -36,14 +37,10 @@ GOTO check_permissions
 
     IF "%~1"=="-b" (
         REM setting branch specified by -b
-        IF "%~2"=="" (
-            set "branch=next"
-            echo Branch Set default
-            SHIFT
-        ) ELSE (
+        IF NOT "%~2"=="" (
             set "branch=%2"
-            echo Branch Set user
-        SHIFT
+            echo Branch Set -- User-Defined
+            SHIFT
         )
     )
 
