@@ -1,6 +1,9 @@
 @echo off
+set "source_directory=%~dp0"
 set "install_directory=%userprofile%\FordWindTunnelPlotter"
 set "branch=next"
+
+cd %source_directory%
 
 echo Welcome to the installation script for the Ford+ WT plotting application!
 echo This script will automatically download and install the latest version. It may take several minutes.
@@ -46,10 +49,10 @@ GOTO check_permissions
 
     SHIFT
     GOTO parse
-:endparse
 
-IF "%install_directory%"=="" GOTO:EOF
-GOTO install
+:endparse
+    IF "%install_directory%"=="" GOTO:EOF
+    GOTO install
 
 :install
     :: Moving extracted files from .exe package (extracts to temp folder)
@@ -58,7 +61,7 @@ GOTO install
     IF NOT EXIST "%install_directory%" md "%install_directory%"
     echo :
     echo (3/9) Moving Files to Install Folder...
-    ROBOCOPY /MOV /NP /NFL /NDL /NJH /NJS "%cd%" "%install_directory%" /XF "install.bat"
+    ROBOCOPY /MOV /NP /NFL /NDL /NJH /NJS "%source_directory:~0,-1%" "%install_directory%" /XF "install.bat"
 
     :: Extracting Embedded Python Distribution
     IF NOT EXIST "%install_directory%\dist" md "%install_directory%\dist"

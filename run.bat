@@ -1,4 +1,4 @@
-:: @echo off
+@echo off
 set "run_directory=%userprofile%\FordWindTunnelPlotter"
 cd /d %run_directory%
 
