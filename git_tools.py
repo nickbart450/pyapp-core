@@ -17,6 +17,7 @@ token = SETTINGS.git['key']
 
 pygit2.option(pygit2.GIT_OPT_SET_OWNER_VALIDATION, 0)  # Disables ownership verification
 
+default_clone_dir = './src'
 
 def isnear(value, reference, dist):
     if value is None or reference is None:
@@ -61,11 +62,22 @@ def onerror(func, path, exc_info):
         raise
 
 
-def clone(url, path='./src', branch=None, auto_yes=False):
+def clone_args(argparse_args):
+    """Breaks down argparse command-line arguments to pass to main clone function"""
+    url = argparse_args.repo_url
+    path = argparse_args.clone
+    branch = argparse_args.branch
+    auto_yes = argparse_args.yes
+    repository = clone(url, path=path, branch=branch, auto_yes=auto_yes)
+    return repository
+
+
+def clone(url, path=default_clone_dir, branch=None, auto_yes=False):
     path = str(path)
     path = os.path.abspath(path)
 
-    if os.path.exists(path):
+    # If directory exists and is not empty
+    if os.path.exists(path) and len(os.listdir(path))>0:
         if auto_yes:
             shutil.rmtree(path, onerror=onerror)
         else:
@@ -179,20 +191,21 @@ def pull(repository=None, branch='main'):
 
 
 if __name__ == '__main__':
-    # clone run paramters: "https://<key>@github.com/SHR-nbartlett/WT_Plotter" -b "auto-update" -c "./src"
+    # clone run parameters: clone -b "auto-update" "https://<key>@github.com/SHR-nbartlett/WT_Plotter"
+
+    # Top Level Parser
     parser = argparse.ArgumentParser(description='Do some git stuff')
-    parser.add_argument('repo')
+    parser.add_argument('-y', '--yes', dest='yes', default=False, action='store_true')
+    subparsers = parser.add_subparsers(help='Commands help')
 
-    parser.add_argument('-c, --clone', dest='clone', help='clone repo to specified path')
+    # create the parser for the "clone" command
+    parser_clone = subparsers.add_parser('clone', help='clone help')
 
-    parser.add_argument('-b, --branch', dest='branch', help='override default/main branch')
+    parser_clone.add_argument('repo_url', nargs='?', help='source repository or url to clone')
+    dest_help_str = 'clone repo to specified path. Path should be valid, empty directory. Default: ./src'
+    parser_clone.add_argument('-d', '--dest', dest='clone', nargs='?', default=default_clone_dir, help=dest_help_str)
+    parser_clone.add_argument('-b, --branch', dest='branch', nargs='?', help='override default/main branch')
+    parser_clone.set_defaults(func=clone_args)
 
     args = parser.parse_args()
-    if args.clone is not None:
-        if args.branch is None or args.branch=="":
-            rep = clone(args.repo, args.clone)
-        else:
-            rep = clone(args.repo, args.clone, branch=args.branch)
-
-        if rep is None:
-            sys.exit(1)
+    args.func(args)
