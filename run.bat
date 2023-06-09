@@ -1,7 +1,6 @@
-@echo off
-set "run_directory=%userprofile%\FordWindTunnelPlotter"
-cd /d %run_directory%
+::@echo off
+set "run_directory=%~dp0"
+cd /d "%run_directory%"
 
-%run_directory%\dist\env\Scripts\python.exe %run_directory%\install_check.py
-%run_directory%\dist\env\Scripts\python.exe %run_directory%\dist\env\Scripts\voila.exe %run_directory%\src\app.ipynb
-pause
+echo Starting....
+call "%run_directory:~0,-1%\src\run.bat"
