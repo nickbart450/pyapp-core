@@ -5,9 +5,9 @@
 #define MyAppExeName "run.bat"
 #define MyAppVersion "1.0.0"
 #define MyAppPublisher "Ford+ Aero"
-#define MyAppURL "https://azureford.sharepoint.com/sites/FordAero/SitePages/Home.aspx"
+#define MyAppURL "https://<key>@github.com/SHR-nbartlett/WT_Plotter"
 #define MyAppIcoName "fordperformancewt_logo.ico"
-#define DefaultBranch "auto-update"
+#define DefaultBranch "dev"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
@@ -27,14 +27,13 @@ AllowNoIcons=yes
 ;PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=commandline
 OutputDir=D:\BartlettSync\code\wt_viz_install\inno_compile
-OutputBaseFilename=setup_1.0.0
+OutputBaseFilename=setup_{#DefaultBranch}_1.0.0
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
-
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
@@ -60,9 +59,20 @@ Type: filesandordirs; Name: "{app}\src"
 Type: filesandordirs; Name: "{app}\__pycache__"
 
 [Run]
-Filename: "TAR.EXE"; Parameters: "-xf ""{app}\dist310.zip"" -C ""{app}\dist"
 ;Filename: "{app}\README.TXT"; Description: "View the README file"; Flags: postinstall shellexec skipifsilent
-Filename: "{app}\INIT.BAT"; Parameters: "-y -b {#DefaultBranch} -d ""{app}"
+Filename: "TAR.EXE"; Parameters: "-xf ""{app}\dist310.zip"" -C ""{app}\dist"; StatusMsg: "Unzipping Python Distribution..."
+Filename: "{app}\dist\bin\PYTHONW.EXE"; Parameters: "-m pip install virtualenv --no-warn-script-location"; StatusMsg: "Installing virtualenv..."
+;"%install_directory%\dist\bin\python.exe" -m pip install -q virtualenv  --no-warn-script-location
+Filename: "{app}\dist\bin\PYTHON.EXE"; Parameters: "-m virtualenv ""{app}\dist\env"; StatusMsg: "Creating virtual environment..."
+;"%install_directory%\dist\bin\python.exe" -m virtualenv -q "%install_directory%\dist\env"
+Filename: "{app}\dist\env\scripts\PYTHONW.EXE"; Parameters: "-m pip install pygit2"; StatusMsg: "Installing pygit2..."
+;"%install_directory%\dist\env\Scripts\python.exe" -m pip install -q pygit2
+Filename: "{app}\dist\env\scripts\PYTHONW.EXE"; Parameters: " ""{app}\git_tools.py"" -y clone -d ""{app}\src"" -b {#DefaultBranch} ""{#MyAppURL}"" "; WorkingDir: "{app}"; StatusMsg: "Cloning project from GitHub..."
+;"%install_directory%\dist\env\Scripts\python.exe" "%install_directory%\git_tools.py" %auto_yes% clone -d "%install_directory%\src" -b "%branch%" "https://<key>@github.com/SHR-nbartlett/WT_Plotter"
+Filename: "{app}\dist\env\scripts\PYTHONW.EXE"; Parameters: "-m pip install -qr ""{app}\src\requirements.txt"" --no-compile --no-warn-script-location"; StatusMsg: "Installing project requirements..."
+;"%install_directory%\dist\env\Scripts\python.exe" -m pip install -qr "%install_directory%\src\requirements.txt" --no-compile --no-warn-script-location
+Filename: "{app}\dist\env\scripts\PYTHON.EXE"; Parameters: " ""{app}\install_check.py"; StatusMsg: "Verifying Installation"
+;"%install_directory%\dist\env\Scripts\python.exe" "%install_directory%\install_check.py"
 
 [Icons]
 Name: "{userdesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#MyAppIcoName}"; Tasks: desktopicon
